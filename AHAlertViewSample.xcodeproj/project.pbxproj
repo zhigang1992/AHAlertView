@@ -7,15 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		805A82B715FFF5200024B7CC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 805A82B615FFF5200024B7CC /* QuartzCore.framework */; };
 		80C6F10415FE54A900ABF313 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80C6F10315FE54A900ABF313 /* UIKit.framework */; };
 		80C6F10615FE54A900ABF313 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80C6F10515FE54A900ABF313 /* Foundation.framework */; };
 		80C6F10815FE54A900ABF313 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80C6F10715FE54A900ABF313 /* CoreGraphics.framework */; };
 		80C6F10E15FE54A900ABF313 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 80C6F10C15FE54A900ABF313 /* InfoPlist.strings */; };
 		80C6F11015FE54A900ABF313 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 80C6F10F15FE54A900ABF313 /* main.m */; };
 		80C6F11415FE54A900ABF313 /* AHAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 80C6F11315FE54A900ABF313 /* AHAppDelegate.m */; };
+		80C6F11C15FE54E900ABF313 /* AHAlertSampleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 80C6F11B15FE54E900ABF313 /* AHAlertSampleViewController.m */; };
+		80C6F12015FE551000ABF313 /* AHAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 80C6F11F15FE551000ABF313 /* AHAlertView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		805A82B615FFF5200024B7CC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		80C6F0FF15FE54A900ABF313 /* AHAlertViewSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AHAlertViewSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		80C6F10315FE54A900ABF313 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		80C6F10515FE54A900ABF313 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -26,6 +30,10 @@
 		80C6F11115FE54A900ABF313 /* AHAlertViewSample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AHAlertViewSample-Prefix.pch"; sourceTree = "<group>"; };
 		80C6F11215FE54A900ABF313 /* AHAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AHAppDelegate.h; sourceTree = "<group>"; };
 		80C6F11315FE54A900ABF313 /* AHAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AHAppDelegate.m; sourceTree = "<group>"; };
+		80C6F11A15FE54E900ABF313 /* AHAlertSampleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AHAlertSampleViewController.h; sourceTree = "<group>"; };
+		80C6F11B15FE54E900ABF313 /* AHAlertSampleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AHAlertSampleViewController.m; sourceTree = "<group>"; };
+		80C6F11E15FE551000ABF313 /* AHAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AHAlertView.h; sourceTree = "<group>"; };
+		80C6F11F15FE551000ABF313 /* AHAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AHAlertView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				805A82B715FFF5200024B7CC /* QuartzCore.framework in Frameworks */,
 				80C6F10415FE54A900ABF313 /* UIKit.framework in Frameworks */,
 				80C6F10615FE54A900ABF313 /* Foundation.framework in Frameworks */,
 				80C6F10815FE54A900ABF313 /* CoreGraphics.framework in Frameworks */,
@@ -65,6 +74,7 @@
 				80C6F10315FE54A900ABF313 /* UIKit.framework */,
 				80C6F10515FE54A900ABF313 /* Foundation.framework */,
 				80C6F10715FE54A900ABF313 /* CoreGraphics.framework */,
+				805A82B615FFF5200024B7CC /* QuartzCore.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -72,6 +82,9 @@
 		80C6F10915FE54A900ABF313 /* AHAlertViewSample */ = {
 			isa = PBXGroup;
 			children = (
+				80C6F11D15FE54FF00ABF313 /* AHAlertView */,
+				80C6F11A15FE54E900ABF313 /* AHAlertSampleViewController.h */,
+				80C6F11B15FE54E900ABF313 /* AHAlertSampleViewController.m */,
 				80C6F11215FE54A900ABF313 /* AHAppDelegate.h */,
 				80C6F11315FE54A900ABF313 /* AHAppDelegate.m */,
 				80C6F10A15FE54A900ABF313 /* Supporting Files */,
@@ -88,6 +101,15 @@
 				80C6F11115FE54A900ABF313 /* AHAlertViewSample-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		80C6F11D15FE54FF00ABF313 /* AHAlertView */ = {
+			isa = PBXGroup;
+			children = (
+				80C6F11E15FE551000ABF313 /* AHAlertView.h */,
+				80C6F11F15FE551000ABF313 /* AHAlertView.m */,
+			);
+			name = AHAlertView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -155,6 +177,8 @@
 			files = (
 				80C6F11015FE54A900ABF313 /* main.m in Sources */,
 				80C6F11415FE54A900ABF313 /* AHAppDelegate.m in Sources */,
+				80C6F11C15FE54E900ABF313 /* AHAlertSampleViewController.m in Sources */,
+				80C6F12015FE551000ABF313 /* AHAlertView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,6 +286,7 @@
 				80C6F11915FE54A900ABF313 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
