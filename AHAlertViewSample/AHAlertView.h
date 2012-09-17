@@ -43,6 +43,8 @@ typedef void (^AHAlertViewButtonBlock)();
 @property(nonatomic, assign) AHAlertViewPresentationStyle presentationStyle;
 @property(nonatomic, assign) AHAlertViewDismissalStyle dismissalStyle;
 
++ (void)applySystemAlertAppearance;
+
 - (id)initWithTitle:(NSString *)title message:(NSString *)message;
 
 - (void)addButtonWithTitle:(NSString *)title block:(AHAlertViewButtonBlock)block;

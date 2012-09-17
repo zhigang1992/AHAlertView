@@ -52,12 +52,16 @@ typedef void (^AHAnimationCompletionBlock)(BOOL); // Internal.
 
 + (void)initialize
 {
+	[self applySystemAlertAppearance];
+}
+
++ (void)applySystemAlertAppearance {
 	// Set up default values for all UIAppearance-compatible selectors
 	
 	[[self appearance] setBackgroundImage:[self alertBackgroundImage]];
 	
 	[[self appearance] setContentInsets:UIEdgeInsetsMake(16, 8, 8, 8)];
-
+	
 	[[self appearance] setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
 											   [UIFont boldSystemFontOfSize:17], UITextAttributeFont,
 											   [UIColor whiteColor], UITextAttributeTextColor,
@@ -73,11 +77,11 @@ typedef void (^AHAnimationCompletionBlock)(BOOL); // Internal.
 												 nil]];
 	
 	[[self appearance] setButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
-												 [UIFont boldSystemFontOfSize:17], UITextAttributeFont,
-												 [UIColor whiteColor], UITextAttributeTextColor,
-												 [UIColor blackColor], UITextAttributeTextShadowColor,
-												 [NSValue valueWithCGSize:CGSizeMake(0, -1)], UITextAttributeTextShadowOffset,
-												 nil]];
+													 [UIFont boldSystemFontOfSize:17], UITextAttributeFont,
+													 [UIColor whiteColor], UITextAttributeTextColor,
+													 [UIColor blackColor], UITextAttributeTextShadowColor,
+													 [NSValue valueWithCGSize:CGSizeMake(0, -1)], UITextAttributeTextShadowOffset,
+													 nil]];
 	
 	[[self appearance] setButtonBackgroundImage:[self normalButtonBackgroundImage] forState:UIControlStateNormal];
 	
@@ -436,7 +440,7 @@ typedef void (^AHAnimationCompletionBlock)(BOOL); // Internal.
 		[self insertSubview:self.backgroundImageView atIndex:0];
 	}
 	
-	self.backgroundImageView.image = [AHAlertView alertBackgroundImage];
+	self.backgroundImageView.image = self.backgroundImage;
 }
 
 - (UILabel *)addLabelAsSubview
