@@ -48,6 +48,7 @@ typedef void (^AHAnimationCompletionBlock)(BOOL); // Internal.
 	BOOL hasLayedOut;
 }
 
+@property (nonatomic, strong) UIWindow *alertWindow, *previousKeyWindow;
 @property (nonatomic, strong) UIImageView *backgroundImageView;
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *messageLabel;
@@ -241,14 +242,18 @@ typedef void (^AHAnimationCompletionBlock)(BOOL); // Internal.
 	self.presentationStyle = style;
 	
 	[self setNeedsLayout];
-	
-	UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
-	
-	UIImageView *dimView = [[UIImageView alloc] initWithFrame:keyWindow.bounds];
-	dimView.image = [self backgroundGradientImageWithSize:keyWindow.bounds.size];
+
+	CGRect screenBounds = [[UIScreen mainScreen] bounds];
+	self.alertWindow = [[UIWindow alloc] initWithFrame:screenBounds];
+	self.alertWindow.windowLevel = UIWindowLevelAlert;
+	self.previousKeyWindow = [[UIApplication sharedApplication] keyWindow];
+	[self.alertWindow makeKeyAndVisible];
+
+	UIImageView *dimView = [[UIImageView alloc] initWithFrame:self.alertWindow.bounds];
+	dimView.image = [self backgroundGradientImageWithSize:self.alertWindow.bounds.size];
 	dimView.userInteractionEnabled = YES;
 	
-	[keyWindow addSubview:dimView];
+	[self.alertWindow addSubview:dimView];
 	[dimView addSubview:self];
 	
 	[self performPresentationAnimation];
@@ -319,6 +324,10 @@ typedef void (^AHAnimationCompletionBlock)(BOOL); // Internal.
 	{
 		[self.superview removeFromSuperview];
 		[self removeFromSuperview];
+
+		[self.previousKeyWindow makeKeyWindow];
+		self.alertWindow = nil;
+		self.previousKeyWindow = nil;
 	};
 	
 	if(self.dismissalStyle == AHAlertViewDismissalStyleTumble)

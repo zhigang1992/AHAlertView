@@ -77,7 +77,7 @@
 - (IBAction)buttonWasPressed:(id)sender {
 	NSString *title = @"Alert View Title";
 	NSString *message = @"Here is a message informing you of something that happened. Do you want to do something about it?";
-
+	
 	AHAlertView *alert = [[AHAlertView alloc] initWithTitle:title message:message];
 	[alert setCancelButtonTitle:@"Cancel" block:^{
 		alert.dismissalStyle = AHAlertViewDismissalStyleTumble;
@@ -100,7 +100,7 @@
 	
 	[[AHAlertView appearance] setBackgroundImage:[UIImage imageNamed:@"custom-dialog-background"]];
 	
-	UIEdgeInsets buttonEdgeInsets = UIEdgeInsetsMake(0, 8, 0, 8);
+	UIEdgeInsets buttonEdgeInsets = UIEdgeInsetsMake(20, 8, 20, 8);
 	[[AHAlertView appearance] setCancelButtonBackgroundImage:[[UIImage imageNamed:@"custom-cancel-normal"] resizableImageWithCapInsets:buttonEdgeInsets]
 													forState:UIControlStateNormal];
 	[[AHAlertView appearance] setButtonBackgroundImage:[[UIImage imageNamed:@"custom-button-normal"] resizableImageWithCapInsets:buttonEdgeInsets]
