@@ -11,6 +11,9 @@
 		804029EF1600FFEE00AB7E51 /* custom-cancel-normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 804029EC1600FFEE00AB7E51 /* custom-cancel-normal@2x.png */; };
 		804029F01600FFEE00AB7E51 /* custom-dialog-background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 804029ED1600FFEE00AB7E51 /* custom-dialog-background@2x.png */; };
 		805A82B715FFF5200024B7CC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 805A82B615FFF5200024B7CC /* QuartzCore.framework */; };
+		805D73391606FEB900F98EA0 /* custom-button-normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 805D73361606FEB900F98EA0 /* custom-button-normal.png */; };
+		805D733A1606FEB900F98EA0 /* custom-cancel-normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 805D73371606FEB900F98EA0 /* custom-cancel-normal.png */; };
+		805D733B1606FEB900F98EA0 /* custom-dialog-background.png in Resources */ = {isa = PBXBuildFile; fileRef = 805D73381606FEB900F98EA0 /* custom-dialog-background.png */; };
 		80C6F10415FE54A900ABF313 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80C6F10315FE54A900ABF313 /* UIKit.framework */; };
 		80C6F10615FE54A900ABF313 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80C6F10515FE54A900ABF313 /* Foundation.framework */; };
 		80C6F10815FE54A900ABF313 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80C6F10715FE54A900ABF313 /* CoreGraphics.framework */; };
@@ -26,6 +29,9 @@
 		804029EC1600FFEE00AB7E51 /* custom-cancel-normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-cancel-normal@2x.png"; path = "Resources/custom-cancel-normal@2x.png"; sourceTree = SOURCE_ROOT; };
 		804029ED1600FFEE00AB7E51 /* custom-dialog-background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-dialog-background@2x.png"; path = "Resources/custom-dialog-background@2x.png"; sourceTree = SOURCE_ROOT; };
 		805A82B615FFF5200024B7CC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		805D73361606FEB900F98EA0 /* custom-button-normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-button-normal.png"; path = "Resources/custom-button-normal.png"; sourceTree = SOURCE_ROOT; };
+		805D73371606FEB900F98EA0 /* custom-cancel-normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-cancel-normal.png"; path = "Resources/custom-cancel-normal.png"; sourceTree = SOURCE_ROOT; };
+		805D73381606FEB900F98EA0 /* custom-dialog-background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-dialog-background.png"; path = "Resources/custom-dialog-background.png"; sourceTree = SOURCE_ROOT; };
 		80C6F0FF15FE54A900ABF313 /* AHAlertViewSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AHAlertViewSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		80C6F10315FE54A900ABF313 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		80C6F10515FE54A900ABF313 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -60,8 +66,11 @@
 		804029E91600FFDE00AB7E51 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				805D73361606FEB900F98EA0 /* custom-button-normal.png */,
 				804029EB1600FFEE00AB7E51 /* custom-button-normal@2x.png */,
+				805D73371606FEB900F98EA0 /* custom-cancel-normal.png */,
 				804029EC1600FFEE00AB7E51 /* custom-cancel-normal@2x.png */,
+				805D73381606FEB900F98EA0 /* custom-dialog-background.png */,
 				804029ED1600FFEE00AB7E51 /* custom-dialog-background@2x.png */,
 			);
 			name = Images;
@@ -185,6 +194,9 @@
 				804029EE1600FFEE00AB7E51 /* custom-button-normal@2x.png in Resources */,
 				804029EF1600FFEE00AB7E51 /* custom-cancel-normal@2x.png in Resources */,
 				804029F01600FFEE00AB7E51 /* custom-dialog-background@2x.png in Resources */,
+				805D73391606FEB900F98EA0 /* custom-button-normal.png in Resources */,
+				805D733A1606FEB900F98EA0 /* custom-cancel-normal.png in Resources */,
+				805D733B1606FEB900F98EA0 /* custom-dialog-background.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

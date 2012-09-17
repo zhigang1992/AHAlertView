@@ -2,8 +2,24 @@
 //  AHAlertSampleViewController.m
 //  AHAlertViewSample
 //
-//  Created by Warren Moore on 9/10/12.
-//  Copyright (c) 2012 Auerhaus Development, LLC. All rights reserved.
+//	Copyright (C) 2012 Auerhaus Development, LLC
+//
+//	Permission is hereby granted, free of charge, to any person obtaining a copy of
+//	this software and associated documentation files (the "Software"), to deal in
+//	the Software without restriction, including without limitation the rights to
+//	use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+//	the Software, and to permit persons to whom the Software is furnished to do so,
+//	subject to the following conditions:
+//
+//	The above copyright notice and this permission notice shall be included in all
+//	copies or substantial portions of the Software.
+//
+//	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+//	FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+//	COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+//	IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+//	CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
 #import "AHAlertSampleViewController.h"
@@ -28,7 +44,8 @@
 	self.view.backgroundColor = [UIColor grayColor];
 	
 	UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-	[button setBackgroundImage:[UIImage imageNamed:@"custom-cancel-normal"] forState:UIControlStateNormal];
+	[button setBackgroundImage:[[UIImage imageNamed:@"custom-cancel-normal"] stretchableImageWithLeftCapWidth:8 topCapHeight:0]
+					  forState:UIControlStateNormal];
 	button.titleLabel.font = [UIFont boldSystemFontOfSize:14];
 	button.frame = CGRectMake(85, 125, 143, 44);
 	button.autoresizingMask = UIViewAutoresizingFlexibleMargins;
@@ -83,9 +100,10 @@
 	
 	[[AHAlertView appearance] setBackgroundImage:[UIImage imageNamed:@"custom-dialog-background"]];
 	
-	[[AHAlertView appearance] setCancelButtonBackgroundImage:[UIImage imageNamed:@"custom-cancel-normal"]
+	UIEdgeInsets buttonEdgeInsets = UIEdgeInsetsMake(0, 8, 0, 8);
+	[[AHAlertView appearance] setCancelButtonBackgroundImage:[[UIImage imageNamed:@"custom-cancel-normal"] resizableImageWithCapInsets:buttonEdgeInsets]
 													forState:UIControlStateNormal];
-	[[AHAlertView appearance] setButtonBackgroundImage:[UIImage imageNamed:@"custom-button-normal"]
+	[[AHAlertView appearance] setButtonBackgroundImage:[[UIImage imageNamed:@"custom-button-normal"] resizableImageWithCapInsets:buttonEdgeInsets]
 											  forState:UIControlStateNormal];
 	
 	[[AHAlertView appearance] setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
