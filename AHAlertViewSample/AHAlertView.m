@@ -26,9 +26,10 @@
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
-static const char * const kAHAlertViewButtonBlockKey = "AHAlertViewButtonBlock";
+// Key used to associated block objects with their respective buttons
+static const char * const AHAlertViewButtonBlockKey = "AHAlertViewButtonBlock";
 
-static const NSInteger kAHViewAutoresizingFlexibleSizeAndMargins =
+static const NSInteger AHViewAutoresizingFlexibleSizeAndMargins =
 	UIViewAutoresizingFlexibleLeftMargin |
 	UIViewAutoresizingFlexibleWidth |
 	UIViewAutoresizingFlexibleRightMargin |
@@ -36,12 +37,23 @@ static const NSInteger kAHViewAutoresizingFlexibleSizeAndMargins =
 	UIViewAutoresizingFlexibleHeight |
 	UIViewAutoresizingFlexibleBottomMargin;
 
-static const CGFloat kAHAlertViewDefaultWidth = 276;
-static const CGFloat kAHAlertViewMinimumHeight = 100;
-static const CGFloat kAHAlertViewDefaultButtonHeight = 40;
-static const CGFloat kAHAlertViewDefaultTextFieldHeight = 26;
+// These hardcoded constants affect the layout of alert views but were not deemed
+// important enough to expose via UIAppearance selectors. If you disagree with that
+// assessment, you can either tweak them here as your application requires, or you
+// can submit an issue or pull request to make layout behavior more flexible.
+static const CGFloat AHAlertViewDefaultWidth = 276;
+static const CGFloat AHAlertViewMinimumHeight = 100;
+static const CGFloat AHAlertViewDefaultButtonHeight = 40;
+static const CGFloat AHAlertViewDefaultTextFieldHeight = 26;
+static const CGFloat AHAlertViewTitleLabelBottomMargin = 8;
+static const CGFloat AHAlertViewMessageLabelBottomMargin = 16;
+static const CGFloat AHAlertViewTextFieldBottomMargin = 8;
+static const CGFloat AHAlertViewTextFieldLeading = -1;
+static const CGFloat AHAlertViewButtonBottomMargin = 4;
+static const CGFloat AHAlertViewButtonHorizontalSpacing = 4;
 
-CGFloat CGAffineTransformGetAbsoluteRotationAngleDifference(CGAffineTransform t1, CGAffineTransform t2)
+// This function may not be completely general. Works well enough for our purposes here.
+static CGFloat CGAffineTransformGetAbsoluteRotationAngleDifference(CGAffineTransform t1, CGAffineTransform t2)
 {
 	CGFloat dot = t1.a * t2.a + t1.c * t2.c;
 	CGFloat n1 = sqrtf(t1.a * t1.a + t1.c * t1.c);
@@ -51,14 +63,20 @@ CGFloat CGAffineTransformGetAbsoluteRotationAngleDifference(CGAffineTransform t1
 
 #pragma mark - Internal interface
 
-typedef void (^AHAnimationCompletionBlock)(BOOL); // Internal.
-typedef void (^AHAnimationBlock)(); // Internal.
+// Internal block type definitions
+typedef void (^AHAnimationCompletionBlock)(BOOL);
+typedef void (^AHAnimationBlock)();
 
 @interface AHAlertView () {
+	// Flag to indicate whether this alert view has ever layed out its subviews
 	BOOL hasLayedOut;
+	// Flag to indicate whether keyboard is visible (or will soon be visible) on the screen
 	BOOL keyboardIsVisible;
+	// Flag to indicate whether the alert view is in the process of a dismissal animation
 	BOOL isDismissing;
+	// Vertical position of top edge of keyboard, when visible
 	CGFloat keyboardHeight;
+	// Last known interface orientation
 	UIInterfaceOrientation previousOrientation;
 }
 
@@ -90,11 +108,14 @@ typedef void (^AHAnimationBlock)(); // Internal.
 
 + (void)applySystemAlertAppearance {
 	// Set up default values for all UIAppearance-compatible selectors
-	
+
+	// Set default (blue glass) background image. See drawing code below.
 	[[self appearance] setBackgroundImage:[self alertBackgroundImage]];
-	
+
+	// Empirically determined edge insets for system style alerts
 	[[self appearance] setContentInsets:UIEdgeInsetsMake(16, 8, 8, 8)];
-	
+
+	// Configure text properties for title, message, and buttons so they accord with system defaults.
 	[[self appearance] setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
 		[UIFont boldSystemFontOfSize:17], UITextAttributeFont,
 		[UIColor whiteColor], UITextAttributeTextColor,
@@ -116,6 +137,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 		[NSValue valueWithCGSize:CGSizeMake(0, -1)], UITextAttributeTextShadowOffset,
 		nil]];
 
+	// Set basic button background images.
 	[[self appearance] setButtonBackgroundImage:[self normalButtonBackgroundImage] forState:UIControlStateNormal];
 	
 	[[self appearance] setCancelButtonBackgroundImage:[self cancelButtonBackgroundImage] forState:UIControlStateNormal];
@@ -125,24 +147,22 @@ typedef void (^AHAnimationBlock)(); // Internal.
 
 - (id)initWithTitle:(NSString *)title message:(NSString *)message
 {
-	CGRect frame = CGRectMake(0, 0, kAHAlertViewDefaultWidth, kAHAlertViewMinimumHeight);
+	// The height of this frame is overridden in layoutSubviews, but it makes a good first approximation.
+	CGRect frame = CGRectMake(0, 0, AHAlertViewDefaultWidth, AHAlertViewMinimumHeight);
 	
 	if((self = [super initWithFrame:frame]))
 	{
 		[super setBackgroundColor:[UIColor clearColor]];
 
+		// Cache text properties for later use
 		_title = title;
 		_message = message;
-		
+
+		// Set default presentation and dismissal animation styles
 		_presentationStyle = AHAlertViewPresentationStyleDefault;
 		_dismissalStyle = AHAlertViewDismissalStyleDefault;
 
-		previousOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-
-		_otherButtons = [NSMutableArray array];
-
-		[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-		
+		// Subscribe to orientation and keyboard visibility change notifications
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(deviceOrientationChanged:)
 													 name:UIDeviceOrientationDidChangeNotification
@@ -157,43 +177,55 @@ typedef void (^AHAnimationBlock)(); // Internal.
 												 selector:@selector(keyboardFrameChanged:)
 													 name:UIKeyboardWillHideNotification
 												   object:nil];
+
+		// Finally, indicate that we'd like to know when the device changes orientations
+		[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 	}
 	return self;
 }
 
 - (void)dealloc
 {
+	// Remove blocks associated with all buttons
 	for(id button in _otherButtons)
-		objc_setAssociatedObject(button, kAHAlertViewButtonBlockKey, nil, OBJC_ASSOCIATION_RETAIN);
+		objc_setAssociatedObject(button, AHAlertViewButtonBlockKey, nil, OBJC_ASSOCIATION_RETAIN);
 
 	if(_cancelButton)
-		objc_setAssociatedObject(_cancelButton, kAHAlertViewButtonBlockKey, nil, OBJC_ASSOCIATION_RETAIN);
+		objc_setAssociatedObject(_cancelButton, AHAlertViewButtonBlockKey, nil, OBJC_ASSOCIATION_RETAIN);
 	
 	if(_destructiveButton)
-		objc_setAssociatedObject(_destructiveButton, kAHAlertViewButtonBlockKey, nil, OBJC_ASSOCIATION_RETAIN);
+		objc_setAssociatedObject(_destructiveButton, AHAlertViewButtonBlockKey, nil, OBJC_ASSOCIATION_RETAIN);
 
+	// Indicate that this object is no longer interested in orientation changes
+	[[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
+
+	// Unsubscribe from all notifications we signed up for
 	[[NSNotificationCenter defaultCenter] removeObserver:self
 													name:UIDeviceOrientationDidChangeNotification
 												  object:nil];
+
 	[[NSNotificationCenter defaultCenter] removeObserver:self
 													name:UIKeyboardWillShowNotification
 												  object:nil];
+	
 	[[NSNotificationCenter defaultCenter] removeObserver:self
 													name:UIKeyboardWillHideNotification
 												  object:nil];
-
-	[[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 }
 
+#pragma mark - Button management methods
+
+// Internal utility to initialize a button while also wiring up the block associated with its touch action
 - (UIButton *)buttonWithTitle:(NSString *)aTitle associatedBlock:(AHAlertViewButtonBlock)block {
 	UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
 	
 	[button setTitle:aTitle forState:UIControlStateNormal];
 	[button addTarget:self action:@selector(buttonWasPressed:) forControlEvents:UIControlEventTouchUpInside];
-	objc_setAssociatedObject(button, kAHAlertViewButtonBlockKey, block, OBJC_ASSOCIATION_RETAIN);
+	objc_setAssociatedObject(button, AHAlertViewButtonBlockKey, block, OBJC_ASSOCIATION_RETAIN);
 	return button;
 }
 
+// Add a normal button with a title and a block to call when it is tapped.
 - (void)addButtonWithTitle:(NSString *)title block:(AHAlertViewButtonBlock)block {
 	if(!self.otherButtons)
 		self.otherButtons = [NSMutableArray array];
@@ -203,6 +235,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	[self addSubview:otherButton];
 }
 
+// Set the destructive button title and a block to call when it is tapped.
 - (void)setDestructiveButtonTitle:(NSString *)title block:(AHAlertViewButtonBlock)block {
 	if(title) {
 		self.destructiveButton = [self buttonWithTitle:title associatedBlock:block];
@@ -213,6 +246,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	}
 }
 
+// Set the cancel button title and a block to call when it is tapped.
 - (void)setCancelButtonTitle:(NSString *)title block:(AHAlertViewButtonBlock)block {
 	if(title) {
 		self.cancelButton = [self buttonWithTitle:title associatedBlock:block];
@@ -223,20 +257,18 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	}
 }
 
-- (void)setAlertViewStyle:(AHAlertViewStyle)alertViewStyle
-{
-	_alertViewStyle = alertViewStyle;
-
-	// Cause text fields or other views to be instantiated lazily next time we lay out
-	[self setNeedsLayout];
-}
-
 #pragma mark - Text field accessor
 
-- (UITextField *)textFieldAtIndex:(NSInteger)textFieldIndex
+- (UITextField *)textFieldAtIndex:(NSInteger)textFieldIndex {
+	return [self textFieldAtIndex:textFieldIndex throws:YES];
+}
+
+- (UITextField *)textFieldAtIndex:(NSInteger)textFieldIndex throws:(BOOL)shouldThrow
 {
+	// Lazily instantiate text fields if we haven't layed out yet.
 	[self ensureTextFieldsForCurrentAlertStyle];
 
+	// The text field corresponding to the index depends solely on which alert view style is currently set.
 	switch(self.alertViewStyle)
 	{
 		case AHAlertViewStyleLoginAndPasswordInput:
@@ -260,11 +292,28 @@ typedef void (^AHAnimationBlock)(); // Internal.
 			break;
 	}
 
+	if(shouldThrow)
+	{
+		NSString *exceptionReason = [NSString stringWithFormat:@"Text field index %d was beyond bounds for current style.",
+									 textFieldIndex];
+		NSException *rangeException = [NSException exceptionWithName:NSRangeException reason:exceptionReason userInfo:nil];
+		[rangeException raise];
+	}
+	
 	return nil;
 }
 
 #pragma mark - Appearance selectors
 
+- (void)setAlertViewStyle:(AHAlertViewStyle)alertViewStyle
+{
+	_alertViewStyle = alertViewStyle;
+
+	// Cause text fields or other views to be instantiated lazily next time we lay out
+	[self setNeedsLayout];
+}
+
+// Appearance selector for setting background image of normal buttons
 - (void)setButtonBackgroundImage:(UIImage *)backgroundImage forState:(UIControlState)state
 {
 	if(!self.buttonBackgroundImagesForControlStates)
@@ -274,11 +323,13 @@ typedef void (^AHAnimationBlock)(); // Internal.
 													forKey:[NSNumber numberWithInteger:state]];
 }
 
+// Appearance selector for getting background image of normal buttons
 - (UIImage *)buttonBackgroundImageForState:(UIControlState)state
 {
 	return [self.buttonBackgroundImagesForControlStates objectForKey:[NSNumber numberWithInteger:state]];
 }
 
+// Appearance selector for setting background image of cancel buttons
 - (void)setCancelButtonBackgroundImage:(UIImage *)backgroundImage forState:(UIControlState)state
 {
 	if(!self.cancelButtonBackgroundImagesForControlStates)
@@ -288,11 +339,13 @@ typedef void (^AHAnimationBlock)(); // Internal.
 														  forKey:[NSNumber numberWithInteger:state]];
 }
 
+// Appearance selector for getting background image of cancel buttons
 - (UIImage *)cancelButtonBackgroundImageForState:(UIControlState)state
 {
 	return [self.cancelButtonBackgroundImagesForControlStates objectForKey:[NSNumber numberWithInteger:state]];
 }
 
+// Appearance selector for setting background image of destructive buttons
 - (void)setDestructiveButtonBackgroundImage:(UIImage *)backgroundImage forState:(UIControlState)state
 {
 	if(!self.destructiveButtonBackgroundImagesForControlStates)
@@ -302,55 +355,121 @@ typedef void (^AHAnimationBlock)(); // Internal.
 															   forKey:[NSNumber numberWithInteger:state]];
 }
 
+// Appearance selector for getting background image of destructive buttons
 - (UIImage *)destructiveButtonBackgroundImageForState:(UIControlState)state
 {
 	return [self.destructiveButtonBackgroundImagesForControlStates objectForKey:[NSNumber numberWithInteger:state]];
 }
 
+- (void)applyTextAttributes:(NSDictionary *)attributes toLabel:(UILabel *)label
+{
+	label.font = [attributes objectForKey:UITextAttributeFont];
+	label.textColor = [attributes objectForKey:UITextAttributeTextColor];
+	label.shadowColor = [attributes objectForKey:UITextAttributeTextShadowColor];
+	label.shadowOffset = [[attributes objectForKey:UITextAttributeTextShadowOffset] CGSizeValue];
+}
+
+- (void)applyTextAttributes:(NSDictionary *)attributes toButton:(UIButton *)button
+{
+	button.titleLabel.font = [attributes objectForKey:UITextAttributeFont];
+	[button setTitleColor:[attributes objectForKey:UITextAttributeTextColor] forState:UIControlStateNormal];
+	[button setTitleShadowColor:[attributes objectForKey:UITextAttributeTextShadowColor] forState:UIControlStateNormal];
+	button.titleLabel.shadowOffset = [[attributes objectForKey:UITextAttributeTextShadowOffset] CGSizeValue];
+}
+
+- (void)applyBackgroundImages:(NSDictionary *)imagesForStates toButton:(UIButton *)button
+{
+	[imagesForStates enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+		[button setBackgroundImage:obj forState:[key integerValue]];
+	}];
+}
+
+- (void)applyAppearanceAttributesToButtons
+{
+	if(self.cancelButton)
+	{
+		[self applyBackgroundImages:self.cancelButtonBackgroundImagesForControlStates
+						   toButton:self.cancelButton];
+		[self applyTextAttributes:self.buttonTitleTextAttributes toButton:self.cancelButton];
+	}
+
+	if(self.destructiveButton)
+	{
+		[self applyBackgroundImages:self.destructiveButtonBackgroundImagesForControlStates
+						   toButton:self.destructiveButton];
+		[self applyTextAttributes:self.buttonTitleTextAttributes toButton:self.destructiveButton];
+	}
+
+	for(UIButton *otherButton in self.otherButtons)
+	{
+		[self applyBackgroundImages:self.buttonBackgroundImagesForControlStates
+						   toButton:otherButton];
+		[self applyTextAttributes:self.buttonTitleTextAttributes toButton:otherButton];
+	}
+}
+
 #pragma mark - Presentation and dismissal methods
 
 - (void)show {
+	// Show with the current presentation style.
 	[self showWithStyle:self.presentationStyle];
 }
 
 - (void)showWithStyle:(AHAlertViewPresentationStyle)style
 {
 	self.presentationStyle = style;
-	
+
+	// Cache the orientation we begin in.
+	previousOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+
 	[self setNeedsLayout];
 
+	// Create a new alert-level UIWindow instance and make key. We need to do this so
+	// we appear above the status bar and can fade it appropriately.
 	CGRect screenBounds = [[UIScreen mainScreen] bounds];
 	self.alertWindow = [[UIWindow alloc] initWithFrame:screenBounds];
 	self.alertWindow.windowLevel = UIWindowLevelAlert;
 	self.previousKeyWindow = [[UIApplication sharedApplication] keyWindow];
 	[self.alertWindow makeKeyAndVisible];
 
+	// Create a new radial gradiant background image to do the screen dimming effect
 	UIImageView *dimView = [[UIImageView alloc] initWithFrame:self.alertWindow.bounds];
 	dimView.image = [self backgroundGradientImageWithSize:self.alertWindow.bounds.size];
 	dimView.userInteractionEnabled = YES;
 	
 	[self.alertWindow addSubview:dimView];
 	[dimView addSubview:self];
-	
+
+	// Animate the alert view itself onto the screen
 	[self performPresentationAnimation];
 }
 
 
 - (void)dismiss {
+	// Hide with the current dismissal style
 	[self dismissWithStyle:self.dismissalStyle];
 }
 
-- (void)dismissWithStyle:(AHAlertViewDismissalStyle)style {
+- (void)dismissWithStyle:(AHAlertViewDismissalStyle)style
+{
 	self.dismissalStyle = style;
+
+	// Flag any methods that might want to change our transform that we're in the midst of a dismissal
 	isDismissing = YES;
+
+	// Force editing of any currently active text fields.
 	[self endEditing:YES];
+
 	[self performDismissalAnimation];
 }
 
 - (void)buttonWasPressed:(UIButton *)sender {
-	AHAlertViewButtonBlock block = objc_getAssociatedObject(sender, kAHAlertViewButtonBlockKey);
-	if(block) block();
-	
+	// Retrieve and invoke the block associated with this button when it was created.
+	AHAlertViewButtonBlock block = objc_getAssociatedObject(sender, AHAlertViewButtonBlockKey);
+	if(block)
+		block();
+
+	// Automatically dismiss after the button tap event is propagated.
 	[self dismissWithStyle:self.dismissalStyle];
 }
 
@@ -360,6 +479,9 @@ typedef void (^AHAnimationBlock)(); // Internal.
 {
 	if(self.presentationStyle == AHAlertViewPresentationStylePop)
 	{
+		// This animation makes the alert view zoom into view, overshoot slightly, and finally
+		// settle in where it should be. It is very similar to the system animation for presenting alert views.
+		
 		// This implementation was inspired by Jeff LaMarche's article on custom UIAlertViews. Thanks!
 		// See: http://iphonedevelopment.blogspot.com/2010/05/custom-alert-views.html
 		CAKeyframeAnimation *bounceAnimation = [CAKeyframeAnimation animation];
@@ -373,7 +495,8 @@ typedef void (^AHAnimationBlock)(); // Internal.
 								  nil];
 		
 		[self.layer addAnimation:bounceAnimation forKey:@"transform.scale"];
-		
+
+		// While the alert view pops in, the background overlay fades in
 		CABasicAnimation *fadeInAnimation = [CABasicAnimation animation];
 		fadeInAnimation.duration = 0.3;
 		fadeInAnimation.fromValue = [NSNumber numberWithFloat:0];
@@ -382,6 +505,8 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	}
 	else if(self.presentationStyle == AHAlertViewPresentationStyleFade)
 	{
+		// This presentation animation is a slightly more subtle presentation with a gentle fade in.
+
 		self.superview.alpha = 0;
 		
 		[UIView animateWithDuration:0.3
@@ -398,24 +523,32 @@ typedef void (^AHAnimationBlock)(); // Internal.
 		// Views appear immediately when added
 	}
 
-	[[self textFieldAtIndex:0] becomeFirstResponder];
+	// As we're appearing, the first text field should become active.
+	[[self textFieldAtIndex:0 throws:NO] becomeFirstResponder];
 }
 
-- (void)performDismissalAnimation {
+- (void)performDismissalAnimation
+{
+	// This block is called at the completion of the dismissal animations.
 	AHAnimationCompletionBlock completionBlock = ^(BOOL finished)
 	{
+		// Remove relevant views.
 		[self.superview removeFromSuperview];
 		[self removeFromSuperview];
 
+		// Restore previous key window and tear down our own window
 		[self.previousKeyWindow makeKeyWindow];
 		self.alertWindow = nil;
 		self.previousKeyWindow = nil;
 
+		// We are no longer dismissing and can be re-presented or destroyed.
 		isDismissing = NO;
 	};
 	
 	if(self.dismissalStyle == AHAlertViewDismissalStyleTumble)
 	{
+		// This animation does a Tweetbot-style tumble animation where the alert view "falls"
+		// off the screen while rotating slightly off-kilter. Use sparingly.
 		[UIView animateWithDuration:0.6
 							  delay:0.0
 							options:UIViewAnimationOptionCurveEaseIn
@@ -431,6 +564,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	}
 	else if(self.dismissalStyle == AHAlertViewDismissalStyleFade)
 	{
+		// This animation subtly fades out the alert view over a short period.
 		[UIView animateWithDuration:0.25
 							  delay:0.0
 							options:UIViewAnimationOptionCurveEaseInOut
@@ -442,6 +576,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	}
 	else if(self.dismissalStyle == AHAlertViewDismissalStyleZoomDown)
 	{
+		// This animation zooms the alert view down, "into" the screen, while fading.
 		[UIView animateWithDuration:0.3
 							  delay:0.0
 							options:UIViewAnimationOptionCurveEaseIn
@@ -454,6 +589,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	}
 	else if(self.dismissalStyle == AHAlertViewDismissalStyleZoomOut)
 	{
+		// This animation zooms the alert view out, "toward" the viewer, while fading.
 		[UIView animateWithDuration:0.25
 							  delay:0.0
 							options:UIViewAnimationOptionCurveLinear
@@ -475,30 +611,35 @@ typedef void (^AHAnimationBlock)(); // Internal.
 - (void)layoutSubviews {
 	[super layoutSubviews];
 
+	// Calculate the rectangle into which we should lay out our subviews, then extend the height infinitely downward
 	CGRect boundingRect = self.bounds;
 	boundingRect = UIEdgeInsetsInsetRect(boundingRect, self.contentInsets);
 	boundingRect.size.height = FLT_MAX;
 
+	// Lay out the various subviews, keeping track of the permissible bounding rectangle at each step.
 	boundingRect = [self layoutTitleLabelWithinRect:boundingRect];
 	boundingRect = [self layoutMessageLabelWithinRect:boundingRect];
 	boundingRect = [self layoutTextFieldsWithinRect:boundingRect];
 	boundingRect = [self layoutButtonsWithinRect:boundingRect];
 
+	// Since we now know the downward extent of all of the subviews, we know the proper bounds to assign ourselves.
 	CGRect newBounds = CGRectMake(0, 0, self.bounds.size.width, boundingRect.origin.y + self.contentInsets.bottom);
 	self.bounds = newBounds;
 
-	[self rotateToMatchInterfaceOrientation];
-
+	// Configure the background image view.
 	[self layoutBackgroundImageView];
+
+	// Rotate and position the alert view based on the new layout.
+	[self reposition];
 }
 
 - (CGRect)layoutTitleLabelWithinRect:(CGRect)boundingRect
 {
-	const CGFloat kTitleLabelBottomMargin = 8;
-
+	// Lazily generate a title label.
 	if(!self.titleLabel && self.title)
 		self.titleLabel = [self addLabelAsSubview];
 
+	// Assign appropriate text attributes to this label, then calculate a suitable frame for it.
 	[self applyTextAttributes:self.titleTextAttributes toLabel:self.titleLabel];
 	self.titleLabel.text = self.title;
 	CGSize titleSize = [self.titleLabel.text sizeWithFont:self.titleLabel.font
@@ -507,19 +648,19 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	self.titleLabel.frame = CGRectMake(boundingRect.origin.x, boundingRect.origin.y,
 									   boundingRect.size.width, titleSize.height);
 
-	CGFloat margin = (titleSize.height > 0) ? kTitleLabelBottomMargin : 0;
-
+	// Adjust and return the bounding rect for the rest of the layout.
+	CGFloat margin = (titleSize.height > 0) ? AHAlertViewTitleLabelBottomMargin : 0;
 	boundingRect.origin.y = boundingRect.origin.y + titleSize.height + margin;
 	return boundingRect;
 }
 
 - (CGRect) layoutMessageLabelWithinRect:(CGRect)boundingRect
 {
-	const CGFloat kMessageLabelBottomMargin = 16;
-
+	// Lazily generate a message label.
 	if(!self.messageLabel && self.message)
 		self.messageLabel = [self addLabelAsSubview];
 
+	// Assign appropriate text attributes to this label, then calculate a suitable frame for it.
 	[self applyTextAttributes:self.messageTextAttributes toLabel:self.messageLabel];
 	self.messageLabel.text = self.message;
 	CGSize messageSize = [self.messageLabel.text sizeWithFont:self.messageLabel.font
@@ -528,12 +669,13 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	self.messageLabel.frame = CGRectMake(boundingRect.origin.x, boundingRect.origin.y,
 										 boundingRect.size.width, messageSize.height);
 
-	CGFloat margin = (messageSize.height > 0) ? kMessageLabelBottomMargin : 0;
-
+	// Adjust and return the bounding rect for the rest of the layout.
+	CGFloat margin = (messageSize.height > 0) ? AHAlertViewMessageLabelBottomMargin : 0;
 	boundingRect.origin.y = boundingRect.origin.y + messageSize.height + margin;
 	return boundingRect;
 }
 
+// Internal utility to create or destroy text fields based on current alert view style
 - (void)ensureTextFieldsForCurrentAlertStyle
 {
 	BOOL wantsPlainTextField = (self.alertViewStyle == AHAlertViewStylePlainTextInput ||
@@ -579,9 +721,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 
 - (CGRect)layoutTextFieldsWithinRect:(CGRect)boundingRect
 {
-	const CGFloat kAHTextFieldBottomMargin = 8;
-	const CGFloat kAHTextFieldLeading = -1;
-
+	// Ensure we have text fields to lay out.
 	[self ensureTextFieldsForCurrentAlertStyle];
 
 	NSMutableArray *textFields = [NSMutableArray arrayWithCapacity:2];
@@ -591,56 +731,55 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	if(self.secureTextField)
 		[textFields addObject:self.secureTextField];
 
+	// Position the text fields in the current bounding rectangle.
 	for(UITextField *textField in textFields)
 	{
 		CGRect fieldFrame = CGRectMake(boundingRect.origin.x, boundingRect.origin.y,
-									   boundingRect.size.width, kAHAlertViewDefaultTextFieldHeight);
+									   boundingRect.size.width, AHAlertViewDefaultTextFieldHeight);
 		textField.frame = fieldFrame;
 
-		CGFloat leading = (textField != [textFields lastObject]) ? kAHTextFieldLeading : 0;
+		CGFloat leading = (textField != [textFields lastObject]) ? AHAlertViewTextFieldLeading : 0;
 		boundingRect.origin.y = CGRectGetMaxY(fieldFrame) + leading;
 	}
 
+	// Adjust and return the bounding rect for the rest of the layout.
 	if([textFields count] > 0)
-		boundingRect.origin.y += kAHTextFieldBottomMargin;
-
+		boundingRect.origin.y += AHAlertViewTextFieldBottomMargin;
 	return boundingRect;
 }
 
 - (CGRect)layoutButtonsWithinRect:(CGRect)boundingRect
 {
-	const CGFloat kAHButtonBottomMargin = 4;
-	const CGFloat kAHButtonHorizontalSpacing = 4;
-
 	[self applyAppearanceAttributesToButtons];
 
 	NSArray *allButtons = [self allButtonsInHIGDisplayOrder];
 
 	if([self shouldUseSingleRowButtonLayout])
 	{
-		CGFloat buttonWidth = ((boundingRect.size.width + kAHButtonHorizontalSpacing) / [allButtons count]);
-		buttonWidth -= kAHButtonHorizontalSpacing;
+		CGFloat buttonOriginX = boundingRect.origin.x;
+		CGFloat buttonWidth = ((boundingRect.size.width + AHAlertViewButtonHorizontalSpacing) / [allButtons count]);
+		buttonWidth -= AHAlertViewButtonHorizontalSpacing;
 
 		for(UIButton *button in allButtons)
 		{
-			CGRect buttonFrame = CGRectMake(boundingRect.origin.x, boundingRect.origin.y,
-											buttonWidth, kAHAlertViewDefaultButtonHeight);
+			CGRect buttonFrame = CGRectMake(buttonOriginX, boundingRect.origin.y,
+											buttonWidth, AHAlertViewDefaultButtonHeight);
 			button.frame = buttonFrame;
 
-			boundingRect.origin.x = CGRectGetMaxX(buttonFrame) + kAHButtonHorizontalSpacing;
+			buttonOriginX = CGRectGetMaxX(buttonFrame) + AHAlertViewButtonHorizontalSpacing;
 		}
 		
-		boundingRect.origin.y = CGRectGetMaxY([[allButtons lastObject] frame]) + kAHButtonBottomMargin;
+		boundingRect.origin.y = CGRectGetMaxY([[allButtons lastObject] frame]);
 	}
 	else
 	{
 		for(UIButton *button in allButtons)
 		{
 			CGRect buttonFrame = CGRectMake(boundingRect.origin.x, boundingRect.origin.y,
-											boundingRect.size.width, kAHAlertViewDefaultButtonHeight);
+											boundingRect.size.width, AHAlertViewDefaultButtonHeight);
 			button.frame = buttonFrame;
 
-			CGFloat margin = (button != [allButtons lastObject]) ? kAHButtonBottomMargin : 0;
+			CGFloat margin = (button != [allButtons lastObject]) ? AHAlertViewButtonBottomMargin : 0;
 			boundingRect.origin.y = CGRectGetMaxY(buttonFrame) + margin;
 		}
 	}
@@ -650,10 +789,11 @@ typedef void (^AHAnimationBlock)(); // Internal.
 
 - (void)layoutBackgroundImageView
 {
+	// Lazily create background image view and set its properties.
 	if(!self.backgroundImageView)
 	{
 		self.backgroundImageView = [[UIImageView alloc] initWithFrame:self.bounds];
-		self.backgroundImageView.autoresizingMask = kAHViewAutoresizingFlexibleSizeAndMargins;
+		self.backgroundImageView.autoresizingMask = AHViewAutoresizingFlexibleSizeAndMargins;
 		self.backgroundImageView.contentMode = UIViewContentModeScaleToFill;
 		[self insertSubview:self.backgroundImageView atIndex:0];
 	}
@@ -661,6 +801,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	self.backgroundImageView.image = self.backgroundImage;
 }
 
+// Utility method to add a new center-aligned, multi-line label to this alert view
 - (UILabel *)addLabelAsSubview
 {
 	UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -672,52 +813,29 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	return label;
 }
 
-- (void)applyTextAttributes:(NSDictionary *)attributes toLabel:(UILabel *)label {
-	label.font = [attributes objectForKey:UITextAttributeFont];
-	label.textColor = [attributes objectForKey:UITextAttributeTextColor];
-	label.shadowColor = [attributes objectForKey:UITextAttributeTextShadowColor];
-	label.shadowOffset = [[attributes objectForKey:UITextAttributeTextShadowOffset] CGSizeValue];
-}
-
-- (void)applyTextAttributes:(NSDictionary *)attributes toButton:(UIButton *)button {
-	button.titleLabel.font = [attributes objectForKey:UITextAttributeFont];
-	[button setTitleColor:[attributes objectForKey:UITextAttributeTextColor] forState:UIControlStateNormal];
-	[button setTitleShadowColor:[attributes objectForKey:UITextAttributeTextShadowColor] forState:UIControlStateNormal];
-	button.titleLabel.shadowOffset = [[attributes objectForKey:UITextAttributeTextShadowOffset] CGSizeValue];
-}
-
-- (void)applyBackgroundImages:(NSDictionary *)imagesForStates toButton:(UIButton *)button {
-	[imagesForStates enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-		[button setBackgroundImage:obj forState:[key integerValue]];
-	}];
-}
-
-- (void)applyAppearanceAttributesToButtons
+// If there are exactly two buttons, we position them side-by-side rather than stacked, regardless of title widths.
+- (BOOL)shouldUseSingleRowButtonLayout
 {
-	if(self.cancelButton)
-	{
-		[self applyBackgroundImages:self.cancelButtonBackgroundImagesForControlStates
-						   toButton:self.cancelButton];
-		[self applyTextAttributes:self.buttonTitleTextAttributes toButton:self.cancelButton];
-	}
+	NSInteger buttonCount =
+		[self.otherButtons count] +
+		((self.cancelButton) ? 1 : 0) +
+		((self.destructiveButton) ? 1 : 0);
 
-	if(self.destructiveButton)
-	{
-		[self applyBackgroundImages:self.destructiveButtonBackgroundImagesForControlStates
-						   toButton:self.destructiveButton];
-		[self applyTextAttributes:self.buttonTitleTextAttributes toButton:self.destructiveButton];
-	}
+	if(buttonCount != 2)
+		return NO;
 
-	for(UIButton *otherButton in self.otherButtons)
-	{
-		[self applyBackgroundImages:self.buttonBackgroundImagesForControlStates
-						   toButton:otherButton];
-		[self applyTextAttributes:self.buttonTitleTextAttributes toButton:otherButton];
-	}
+	UIButton *cancelButtonOrNil = self.cancelButton;
+	UIButton *onlyOtherButtonOrNil = self.destructiveButton;
+	if(!onlyOtherButtonOrNil && [self.otherButtons count] == 1)
+		onlyOtherButtonOrNil = [self.otherButtons objectAtIndex:0];
+
+	return (cancelButtonOrNil && onlyOtherButtonOrNil);
 }
 
+// This method tries to compensate for HIG recommendations regarding button layout, but does so incompletely.
 - (NSArray *)allButtonsInHIGDisplayOrder
 {
+	// Add all buttons to a common array, starting with destructive, followed by normal, finishing with cancel.
 	NSMutableArray *allButtons = [NSMutableArray array];
 	if(self.destructiveButton)
 		[allButtons addObject:self.destructiveButton];
@@ -726,39 +844,32 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	if(self.cancelButton)
 		[allButtons addObject:self.cancelButton];
 
-	if([self shouldUseSingleRowButtonLayout]) {
+	// If there are just two buttons, position them side-by-side, cancel button first.
+	if([self shouldUseSingleRowButtonLayout])
+	{
 		allButtons = [NSArray arrayWithObjects:self.cancelButton, [allButtons objectAtIndex:0], nil];
 	}
 
 	return allButtons;
 }
 
-- (BOOL)shouldUseSingleRowButtonLayout
-{
-	UIButton *cancelButtonOrNil = self.cancelButton;
-	UIButton *onlyOtherButtonOrNil = self.destructiveButton;
-	if(!onlyOtherButtonOrNil && [self.otherButtons count] == 1)
-		onlyOtherButtonOrNil = [self.otherButtons objectAtIndex:0];
-
-	if(!cancelButtonOrNil || !onlyOtherButtonOrNil)
-		return NO;
-
-	return YES;
-}
-
 #pragma mark - Keyboard helpers
 
 - (void)keyboardFrameChanged:(NSNotification *)notification
 {
+	// Toggle keyboard visibility flag based on which notification we're receiving.
 	keyboardIsVisible = ![notification.name isEqualToString:UIKeyboardWillHideNotification];
 
+	// Retrieve keyboard frame in screen space and transform it to window space.
 	CGRect keyboardFrame = [[[notification userInfo] valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
 	CGRect transformedFrame = CGRectApplyAffineTransform(keyboardFrame, [self transformForCurrentOrientation]);
 	keyboardHeight = transformedFrame.size.height;
 
+	// If the keyboard will soon be invisible, zero-out the stored height.
 	if(!keyboardIsVisible)
 		keyboardHeight = 0.0;
 
+	// If we're not currently dismissing, we should position ourselves to account for the keyboard.
 	if(!isDismissing)
 		[self setNeedsLayout];
 }
@@ -767,6 +878,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 
 - (CGAffineTransform)transformForCurrentOrientation
 {
+	// Calculate a rotation transform that matches the current interface orientation.
 	CGAffineTransform transform = CGAffineTransformIdentity;
 	UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
 	if(orientation == UIInterfaceOrientationPortraitUpsideDown)
@@ -779,13 +891,17 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	return transform;
 }
 
-- (void)rotateToMatchInterfaceOrientation
+- (void)reposition
 {
 	CGAffineTransform baseTransform = [self transformForCurrentOrientation];
 
-	AHAnimationBlock layoutBlock = ^{
+	// This block contains all of the logic for how we position ourselves to account for the
+	// presence of the keyboard and the current interface orientation.
+	AHAnimationBlock layoutBlock = ^
+	{
 		self.transform = baseTransform;
 
+		// Try to center ourselves in the space above the keyboard.
 		CGPoint keyboardOffset = CGPointMake(0, -keyboardHeight);
 		keyboardOffset = CGPointApplyAffineTransform(keyboardOffset, self.transform);
 		CGRect superviewBounds = self.superview.bounds;
@@ -796,25 +912,32 @@ typedef void (^AHAnimationBlock)(); // Internal.
 		self.center = newCenter;
 	};
 
+	// Determine if the rotation we're about to undergo is 90 degrees or 180 degrees.
 	CGFloat delta = CGAffineTransformGetAbsoluteRotationAngleDifference(self.transform, baseTransform);
 	const CGFloat HALF_PI = 1.581; // Don't use M_PI_2 here; precision errors will cause incorrect results below.
 	BOOL isDoubleRotation = (delta > HALF_PI);
 
+	// If we've layed out before, we should rotate to the new orientation.
 	if(hasLayedOut)
 	{
+		// Use the system rotation duration.
 		CGFloat duration = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
 
 		// Egregious hax. iPad lies about its rotation duration.
 		if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 			duration = 0.4;
 
+		// Simply double the animation duration if we're rotating a full 180 degrees.
 		if(isDoubleRotation)
 			duration *= 2;
 
 		[UIView animateWithDuration:duration animations:layoutBlock];
 	}
 	else
+	{
+		// We've never layed out before, so we should do it without animating, to prevent weird rotations.
 		layoutBlock();
+	}
 
 	hasLayedOut = YES;
 }
@@ -823,10 +946,11 @@ typedef void (^AHAnimationBlock)(); // Internal.
 {
 	UIInterfaceOrientation currentOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 
+	// If the current orientation doesn't match the destination orientation, rotate to compensate.
 	if(previousOrientation != currentOrientation)
 	{
 		previousOrientation = currentOrientation;
-		[self setNeedsLayout];
+		[self reposition];
 	}
 }
 
@@ -867,7 +991,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 
 + (UIImage *)alertBackgroundImage
 {
-	CGRect rect = CGRectMake(0, 0, kAHAlertViewDefaultWidth, kAHAlertViewMinimumHeight);
+	CGRect rect = CGRectMake(0, 0, AHAlertViewDefaultWidth, AHAlertViewMinimumHeight);
 	const CGFloat lineWidth = 2;
 	const CGFloat cornerRadius = 8;
 
@@ -963,7 +1087,7 @@ typedef void (^AHAnimationBlock)(); // Internal.
 	const CGFloat cornerRadius = 4;
 	UIColor *strokeColor = [UIColor colorWithRed:1/255.0 green:11/255.0 blue:39/255.0 alpha:1.0];
 	
-	CGRect rect = CGRectMake(0, 0, cornerRadius * 2 + 1, kAHAlertViewDefaultButtonHeight);
+	CGRect rect = CGRectMake(0, 0, cornerRadius * 2 + 1, AHAlertViewDefaultButtonHeight);
 
 	BOOL opaque = NO;
     UIGraphicsBeginImageContextWithOptions(rect.size, opaque, [[UIScreen mainScreen] scale]);
