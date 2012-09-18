@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8020D22416082581005383E4 /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 8020D22016082581005383E4 /* Icon-72.png */; };
+		8020D22516082581005383E4 /* Icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = 8020D22116082581005383E4 /* Icon-144.png */; };
+		8020D22616082581005383E4 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 8020D22216082581005383E4 /* Icon.png */; };
+		8020D22716082581005383E4 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8020D22316082581005383E4 /* Icon@2x.png */; };
 		804029EE1600FFEE00AB7E51 /* custom-button-normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 804029EB1600FFEE00AB7E51 /* custom-button-normal@2x.png */; };
 		804029EF1600FFEE00AB7E51 /* custom-cancel-normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 804029EC1600FFEE00AB7E51 /* custom-cancel-normal@2x.png */; };
 		804029F01600FFEE00AB7E51 /* custom-dialog-background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 804029ED1600FFEE00AB7E51 /* custom-dialog-background@2x.png */; };
@@ -25,6 +29,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8020D22016082581005383E4 /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-72.png"; path = "Resources/Icon-72.png"; sourceTree = SOURCE_ROOT; };
+		8020D22116082581005383E4 /* Icon-144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-144.png"; path = "Resources/Icon-144.png"; sourceTree = SOURCE_ROOT; };
+		8020D22216082581005383E4 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = Resources/Icon.png; sourceTree = SOURCE_ROOT; };
+		8020D22316082581005383E4 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "Resources/Icon@2x.png"; sourceTree = SOURCE_ROOT; };
 		804029EB1600FFEE00AB7E51 /* custom-button-normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-button-normal@2x.png"; path = "Resources/custom-button-normal@2x.png"; sourceTree = SOURCE_ROOT; };
 		804029EC1600FFEE00AB7E51 /* custom-cancel-normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-cancel-normal@2x.png"; path = "Resources/custom-cancel-normal@2x.png"; sourceTree = SOURCE_ROOT; };
 		804029ED1600FFEE00AB7E51 /* custom-dialog-background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-dialog-background@2x.png"; path = "Resources/custom-dialog-background@2x.png"; sourceTree = SOURCE_ROOT; };
@@ -66,6 +74,10 @@
 		804029E91600FFDE00AB7E51 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				8020D22016082581005383E4 /* Icon-72.png */,
+				8020D22116082581005383E4 /* Icon-144.png */,
+				8020D22216082581005383E4 /* Icon.png */,
+				8020D22316082581005383E4 /* Icon@2x.png */,
 				805D73361606FEB900F98EA0 /* custom-button-normal.png */,
 				804029EB1600FFEE00AB7E51 /* custom-button-normal@2x.png */,
 				805D73371606FEB900F98EA0 /* custom-cancel-normal.png */,
@@ -197,6 +209,10 @@
 				805D73391606FEB900F98EA0 /* custom-button-normal.png in Resources */,
 				805D733A1606FEB900F98EA0 /* custom-cancel-normal.png in Resources */,
 				805D733B1606FEB900F98EA0 /* custom-dialog-background.png in Resources */,
+				8020D22416082581005383E4 /* Icon-72.png in Resources */,
+				8020D22516082581005383E4 /* Icon-144.png in Resources */,
+				8020D22616082581005383E4 /* Icon.png in Resources */,
+				8020D22716082581005383E4 /* Icon@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,7 +299,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "AHAlertViewSample/AHAlertViewSample-Prefix.pch";
 				INFOPLIST_FILE = "AHAlertViewSample/AHAlertViewSample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -294,7 +312,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "AHAlertViewSample/AHAlertViewSample-Prefix.pch";
 				INFOPLIST_FILE = "AHAlertViewSample/AHAlertViewSample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

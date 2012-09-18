@@ -25,7 +25,11 @@
 #import "AHAlertSampleViewController.h"
 #import "AHAlertView.h"
 
-#define UIViewAutoresizingFlexibleMargins 45
+static const NSInteger kAHViewAutoresizingFlexibleMargins =
+	UIViewAutoresizingFlexibleLeftMargin |
+	UIViewAutoresizingFlexibleRightMargin |
+	UIViewAutoresizingFlexibleTopMargin |
+	UIViewAutoresizingFlexibleBottomMargin;
 
 @implementation AHAlertSampleViewController
 
@@ -42,31 +46,46 @@
     [super viewDidLoad];
 	
 	self.view.backgroundColor = [UIColor grayColor];
-	
+
+	[self initializeUserInterface];
+}
+
+- (void)initializeUserInterface
+{
+	UIEdgeInsets buttonEdgeInsets = UIEdgeInsetsMake(20, 8, 20, 8);
+
+	UIImage *buttonImage = [[UIImage imageNamed:@"custom-cancel-normal"]
+							resizableImageWithCapInsets:buttonEdgeInsets];
+
+	CGPoint viewCenter = self.view.center;
+
+	CGSize buttonSize = CGSizeMake(144, 44);
 	UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-	[button setBackgroundImage:[[UIImage imageNamed:@"custom-cancel-normal"] stretchableImageWithLeftCapWidth:8 topCapHeight:0]
-					  forState:UIControlStateNormal];
+	[button setBackgroundImage:buttonImage forState:UIControlStateNormal];
 	button.titleLabel.font = [UIFont boldSystemFontOfSize:14];
-	button.frame = CGRectMake(85, 125, 143, 44);
-	button.autoresizingMask = UIViewAutoresizingFlexibleMargins;
+	button.frame = CGRectMake(viewCenter.x - buttonSize.width * 0.5, viewCenter.y - 80, buttonSize.width, buttonSize.height);
+	button.autoresizingMask = kAHViewAutoresizingFlexibleMargins;
 	[button setTitle:@"Show Alert View" forState:UIControlStateNormal];
 	[button addTarget:self action:@selector(buttonWasPressed:) forControlEvents:UIControlEventTouchUpInside];
 	[self.view addSubview:button];
-	
-	UILabel *switchLabel = [[UILabel alloc] initWithFrame:CGRectMake(60, 225, 120, 16)];
+
+	CGSize labelSize = CGSizeMake(120, 16);
+	CGRect labelFrame = CGRectMake(viewCenter.x - labelSize.width * 0.5, viewCenter.y + 80, labelSize.width, labelSize.height);
+	UILabel *switchLabel = [[UILabel alloc] initWithFrame:labelFrame];
 	switchLabel.text = @"Custom Styles";
+	switchLabel.textAlignment = UITextAlignmentCenter;
 	switchLabel.font = [UIFont boldSystemFontOfSize:15];
 	switchLabel.backgroundColor = [UIColor clearColor];
+	switchLabel.autoresizingMask = kAHViewAutoresizingFlexibleMargins;
 	[self.view addSubview:switchLabel];
-	
-	UISwitch *appearanceSwitch = [[UISwitch alloc] initWithFrame:CGRectMake(175, 217, 0, 0)];
-	[appearanceSwitch addTarget:self action:@selector(switchValueChanged:) forControlEvents:UIControlEventValueChanged];
-	[self.view addSubview:appearanceSwitch];
-}
 
-- (void)viewDidAppear:(BOOL)animated
-{
-	[super viewDidAppear:animated];
+	UISwitch *appearanceSwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+	CGSize switchSize = appearanceSwitch.bounds.size;
+	CGRect switchFrame = CGRectMake(viewCenter.x - switchSize.width * 0.5, viewCenter.y + 120, switchSize.width, switchSize.height);
+	appearanceSwitch.frame = switchFrame;
+	[appearanceSwitch addTarget:self action:@selector(switchValueChanged:) forControlEvents:UIControlEventValueChanged];
+	appearanceSwitch.autoresizingMask = kAHViewAutoresizingFlexibleMargins;
+	[self.view addSubview:appearanceSwitch];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -74,15 +93,19 @@
     return YES;
 }
 
-- (IBAction)buttonWasPressed:(id)sender {
+- (IBAction)buttonWasPressed:(id)sender
+{
 	NSString *title = @"Alert View Title";
-	NSString *message = @"Here is a message informing you of something that happened. Do you want to do something about it?";
+	NSString *message = @"This is a message that might prompt you to do something.";
 	
 	AHAlertView *alert = [[AHAlertView alloc] initWithTitle:title message:message];
+	alert.alertViewStyle = AHAlertViewStyleSecureTextInput;
 	[alert setCancelButtonTitle:@"Cancel" block:^{
 		alert.dismissalStyle = AHAlertViewDismissalStyleTumble;
 	}];
-	[alert addButtonWithTitle:@"OK" block:nil];
+	[alert addButtonWithTitle:@"OK" block:^{
+		alert.dismissalStyle = AHAlertViewDismissalStyleZoomDown;
+	}];
 	[alert show];
 }
 
@@ -101,31 +124,37 @@
 	[[AHAlertView appearance] setBackgroundImage:[UIImage imageNamed:@"custom-dialog-background"]];
 	
 	UIEdgeInsets buttonEdgeInsets = UIEdgeInsetsMake(20, 8, 20, 8);
-	[[AHAlertView appearance] setCancelButtonBackgroundImage:[[UIImage imageNamed:@"custom-cancel-normal"] resizableImageWithCapInsets:buttonEdgeInsets]
+	
+	UIImage *cancelButtonImage = [[UIImage imageNamed:@"custom-cancel-normal"]
+								  resizableImageWithCapInsets:buttonEdgeInsets];
+	UIImage *normalButtonImage = [[UIImage imageNamed:@"custom-button-normal"]
+								  resizableImageWithCapInsets:buttonEdgeInsets];
+
+	[[AHAlertView appearance] setCancelButtonBackgroundImage:cancelButtonImage
 													forState:UIControlStateNormal];
-	[[AHAlertView appearance] setButtonBackgroundImage:[[UIImage imageNamed:@"custom-button-normal"] resizableImageWithCapInsets:buttonEdgeInsets]
+	[[AHAlertView appearance] setButtonBackgroundImage:normalButtonImage
 											  forState:UIControlStateNormal];
 	
 	[[AHAlertView appearance] setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
-													  [UIFont boldSystemFontOfSize:18], UITextAttributeFont,
-													  [UIColor whiteColor], UITextAttributeTextColor,
-													  [UIColor blackColor], UITextAttributeTextShadowColor,
-													  [NSValue valueWithCGSize:CGSizeMake(0, -1)], UITextAttributeTextShadowOffset,
-													  nil]];
-	
+		[UIFont boldSystemFontOfSize:18], UITextAttributeFont,
+		[UIColor whiteColor], UITextAttributeTextColor,
+		[UIColor blackColor], UITextAttributeTextShadowColor,
+		[NSValue valueWithCGSize:CGSizeMake(0, -1)], UITextAttributeTextShadowOffset,
+		nil]];
+
 	[[AHAlertView appearance] setMessageTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
-														[UIFont systemFontOfSize:14], UITextAttributeFont,
-														[UIColor colorWithWhite:0.8 alpha:1.0], UITextAttributeTextColor,
-														[UIColor blackColor], UITextAttributeTextShadowColor,
-														[NSValue valueWithCGSize:CGSizeMake(0, -1)], UITextAttributeTextShadowOffset,
-														nil]];
-	
+		[UIFont systemFontOfSize:14], UITextAttributeFont,
+		[UIColor colorWithWhite:0.8 alpha:1.0], UITextAttributeTextColor,
+		[UIColor blackColor], UITextAttributeTextShadowColor,
+		[NSValue valueWithCGSize:CGSizeMake(0, -1)], UITextAttributeTextShadowOffset,
+		nil]];
+
 	[[AHAlertView appearance] setButtonTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
-															[UIFont boldSystemFontOfSize:14], UITextAttributeFont,
-															[UIColor whiteColor], UITextAttributeTextColor,
-															[UIColor blackColor], UITextAttributeTextShadowColor,
-															[NSValue valueWithCGSize:CGSizeMake(0, -1)], UITextAttributeTextShadowOffset,
-															nil]];
+		[UIFont boldSystemFontOfSize:14], UITextAttributeFont,
+		[UIColor whiteColor], UITextAttributeTextColor,
+		[UIColor blackColor], UITextAttributeTextShadowColor,
+		[NSValue valueWithCGSize:CGSizeMake(0, -1)], UITextAttributeTextShadowOffset,
+		nil]];
 }
 
 @end

@@ -6,9 +6,9 @@
 
  1. Block-based button events - no more messy delegate code
  2. `UIAppearance` conformance to allow easy skinning of all elements
- 3. Additional presentation and dismissal animations (tumble, fade, zoom, etc.)
+ 3. Dramatic presentation and dismissal animations (tumble, fade, zoom, etc.)
 
-Showing an alert is as simple as creating an alert, adding a button, and showing the alert:
+Showing an alert is as simple as creating an alert, adding a button, and calling `show`:
 
     AHAlertView *alert = [[AHAlertView alloc] initWithTitle:@"Hello, World!" message:@"I'm an alert view!"];
     [alert setCancelButtonTitle:@"Dismiss" block:nil];
@@ -22,6 +22,6 @@ You can use the block you pass in with the button title to perform any action, i
 
 ## TODO
 
- - Currently, only the default style (title and message) is available. Styles with text fields or an activity indicator are planned.
- - The layout code is monolithic and inflexible. It needs to be cleaned up.
  - I think we can all agree a little more documentation would be nice.
+ - Indeterminate progress style, possibly a determinate one as well.
+ - Better button layout code
