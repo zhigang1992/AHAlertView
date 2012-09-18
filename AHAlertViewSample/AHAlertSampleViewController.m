@@ -99,7 +99,6 @@ static const NSInteger kAHViewAutoresizingFlexibleMargins =
 	NSString *message = @"This is a message that might prompt you to do something.";
 	
 	AHAlertView *alert = [[AHAlertView alloc] initWithTitle:title message:message];
-	//alert.alertViewStyle = AHAlertViewStyleSecureTextInput;
 	[alert setCancelButtonTitle:@"Cancel" block:^{
 		alert.dismissalStyle = AHAlertViewDismissalStyleTumble;
 	}];
