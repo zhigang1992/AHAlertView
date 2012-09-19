@@ -41,10 +41,7 @@ You can use an alert view to prompt for user input, including secure text for pa
 
 You can use the block you pass in with the button title to perform any action, including setting a custom dismissal animation based on which button was touched:
 
-<video width="320" height="480" controls="controls">
-  <source src="https://dl.dropbox.com/u/13103695/Screenshots/AHAlertView-Tumble.mov" type="video/quicktime" />
-  Your browser does not support the video tag.
-</video>
+![Custom theme and animation example](https://dl.dropbox.com/u/13103695/Screenshots/AHAlertView-Tumble.gif)
 
     [alert setCancelButtonTitle:@"Cancel" block:^{
 	    alert.dismissalStyle = AHAlertViewDismissalStyleTumble;
