@@ -82,6 +82,7 @@ typedef void (^AHAnimationBlock)();
 
 @property (nonatomic, strong) UIWindow *alertWindow;
 @property (nonatomic, strong) UIWindow *previousKeyWindow;
+@property (nonatomic, strong) UIImageView *dimView;
 @property (nonatomic, strong) UIImageView *backgroundImageView;
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UILabel *messageLabel;
@@ -161,6 +162,8 @@ typedef void (^AHAnimationBlock)();
 		// Set default presentation and dismissal animation styles
 		_presentationStyle = AHAlertViewPresentationStyleDefault;
 		_dismissalStyle = AHAlertViewDismissalStyleDefault;
+		_enterDirection = AHAlertViewEnterDirectionFromRight;
+		_exitDirection = AHAlertViewExitDirectionToLeft;
 
 		// Subscribe to orientation and keyboard visibility change notifications
 		[[NSNotificationCenter defaultCenter] addObserver:self
@@ -422,8 +425,6 @@ typedef void (^AHAnimationBlock)();
 	// Cache the orientation we begin in.
 	previousOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 
-	[self setNeedsLayout];
-
 	// Create a new alert-level UIWindow instance and make key. We need to do this so
 	// we appear above the status bar and can fade it appropriately.
 	CGRect screenBounds = [[UIScreen mainScreen] bounds];
@@ -433,12 +434,14 @@ typedef void (^AHAnimationBlock)();
 	[self.alertWindow makeKeyAndVisible];
 
 	// Create a new radial gradiant background image to do the screen dimming effect
-	UIImageView *dimView = [[UIImageView alloc] initWithFrame:self.alertWindow.bounds];
-	dimView.image = [self backgroundGradientImageWithSize:self.alertWindow.bounds.size];
-	dimView.userInteractionEnabled = YES;
+	self.dimView = [[UIImageView alloc] initWithFrame:self.alertWindow.bounds];
+	self.dimView.image = [self backgroundGradientImageWithSize:self.alertWindow.bounds.size];
+	self.dimView.userInteractionEnabled = YES;
 	
-	[self.alertWindow addSubview:dimView];
-	[dimView addSubview:self];
+	[self.alertWindow addSubview:self.dimView];
+	[self.alertWindow addSubview:self];
+
+	[self layoutIfNeeded];
 
 	// Animate the alert view itself onto the screen
 	[self performPresentationAnimation];
@@ -501,20 +504,40 @@ typedef void (^AHAnimationBlock)();
 		fadeInAnimation.duration = 0.3;
 		fadeInAnimation.fromValue = [NSNumber numberWithFloat:0];
 		fadeInAnimation.toValue = [NSNumber numberWithFloat:1];
-		[self.superview.layer addAnimation:fadeInAnimation forKey:@"opacity"];
+		[self.dimView.layer addAnimation:fadeInAnimation forKey:@"opacity"];
 	}
 	else if(self.presentationStyle == AHAlertViewPresentationStyleFade)
 	{
 		// This presentation animation is a slightly more subtle presentation with a gentle fade in.
 
-		self.superview.alpha = 0;
-		
+		self.dimView.alpha = self.alpha = 0;
+
 		[UIView animateWithDuration:0.3
 							  delay:0.0
 							options:UIViewAnimationOptionCurveEaseInOut
 						 animations:^
 		 {
-			 self.superview.alpha = 1;
+			 self.dimView.alpha = self.alpha = 1;
+		 }
+						 completion:nil];
+	}
+	else if(self.presentationStyle == AHAlertViewPresentationStylePush)
+	{
+		CGPoint targetCenter = self.center;
+		CGPoint offset = [self centerOffsetForDirection:self.enterDirection];
+		offset = CGPointApplyAffineTransform(offset, self.transform);
+		CGPoint originCenter = CGPointMake(self.center.x + offset.x, self.center.y + offset.y);
+
+		self.center = originCenter;
+		self.dimView.alpha = 0.01;
+
+		[UIView animateWithDuration:0.4
+							  delay:0.0
+							options:UIViewAnimationOptionCurveEaseInOut
+						 animations:^
+		 {
+			 self.center = targetCenter;
+			 self.dimView.alpha = 1;
 		 }
 						 completion:nil];
 	}
@@ -533,7 +556,7 @@ typedef void (^AHAnimationBlock)();
 	AHAnimationCompletionBlock completionBlock = ^(BOOL finished)
 	{
 		// Remove relevant views.
-		[self.superview removeFromSuperview];
+		[self.dimView removeFromSuperview];
 		[self removeFromSuperview];
 
 		// Restore previous key window and tear down our own window
@@ -558,7 +581,7 @@ typedef void (^AHAnimationBlock)();
 			 offset = CGPointApplyAffineTransform(offset, self.transform);
 			 self.transform = CGAffineTransformConcat(self.transform, CGAffineTransformMakeRotation(-M_PI_4));
 			 self.center = CGPointMake(self.center.x + offset.x, self.center.y + offset.y);
-			 self.superview.alpha = 0;
+			 self.dimView.alpha = 0;
 		 }
 						 completion:completionBlock];
 	}
@@ -570,7 +593,7 @@ typedef void (^AHAnimationBlock)();
 							options:UIViewAnimationOptionCurveEaseInOut
 						 animations:^
 		 {
-			 self.superview.alpha = 0;
+			 self.dimView.alpha = self.alpha = 0;
 		 }
 						 completion:completionBlock];
 	}
@@ -583,7 +606,7 @@ typedef void (^AHAnimationBlock)();
 						 animations:^
 		 {
 			 self.transform = CGAffineTransformConcat(self.transform, CGAffineTransformMakeScale(0.01, 0.01));
-			 self.superview.alpha = 0;
+			 self.dimView.alpha = self.alpha = 0;
 		 }
 						 completion:completionBlock];
 	}
@@ -596,7 +619,22 @@ typedef void (^AHAnimationBlock)();
 						 animations:^
 		 {
 			 self.transform = CGAffineTransformConcat(self.transform, CGAffineTransformMakeScale(10, 10));
-			 self.superview.alpha = 0;
+			 self.dimView.alpha = self.alpha = 0;
+		 }
+						 completion:completionBlock];
+	}
+	else if(self.dismissalStyle == AHAlertViewDismissalStylePush)
+	{
+		[UIView animateWithDuration:0.4
+							  delay:0.0
+							options:UIViewAnimationOptionCurveEaseInOut
+						 animations:^
+		 {
+			 CGPoint offset = [self centerOffsetForDirection:self.exitDirection];
+			 offset = CGPointApplyAffineTransform(offset, self.transform);
+			 self.center = CGPointMake(self.center.x + offset.x, self.center.y + offset.y);
+			 
+			 self.dimView.alpha = 0;
 		 }
 						 completion:completionBlock];
 	}
@@ -604,6 +642,23 @@ typedef void (^AHAnimationBlock)();
 	{
 		completionBlock(YES);
 	}
+}
+
+- (CGPoint)centerOffsetForDirection:(NSInteger)direction
+{
+	switch(direction)
+	{
+		case AHAlertViewEnterDirectionFromTop: // also AHAlertViewExitDirectionToTop
+			return CGPointMake(0, -self.superview.bounds.size.height * 1.5);
+		case AHAlertViewEnterDirectionFromRight:  // also AHAlertViewExitDirectionToRight
+			return CGPointMake(self.superview.bounds.size.width * 1.5, 0);
+		case AHAlertViewEnterDirectionFromBottom:  // also AHAlertViewExitDirectionToBottom
+			return CGPointMake(0, self.superview.bounds.size.height * 1.5);
+		case AHAlertViewEnterDirectionFromLeft:  // also AHAlertViewExitDirectionToLeft
+			return CGPointMake(-self.superview.bounds.size.width * 1.5, 0);
+	}
+
+	return CGPointZero;
 }
 
 #pragma mark - Layout calculation methods

@@ -32,10 +32,25 @@ typedef enum {
 } AHAlertViewStyle;
 
 typedef enum {
+	AHAlertViewEnterDirectionFromTop,
+	AHAlertViewEnterDirectionFromRight,
+	AHAlertViewEnterDirectionFromBottom,
+	AHAlertViewEnterDirectionFromLeft,
+} AHAlertViewEnterDirection;
+
+typedef enum {
+	AHAlertViewExitDirectionToTop,
+	AHAlertViewExitDirectionToRight,
+	AHAlertViewExitDirectionToBottom,
+	AHAlertViewExitDirectionToLeft,
+} AHAlertViewExitDirection;
+
+typedef enum {
 	AHAlertViewPresentationStyleNone = 0,
 	AHAlertViewPresentationStylePop,
 	AHAlertViewPresentationStyleFade,
-	
+	AHAlertViewPresentationStylePush,
+
 	AHAlertViewPresentationStyleDefault = AHAlertViewPresentationStylePop
 } AHAlertViewPresentationStyle;
 
@@ -45,6 +60,7 @@ typedef enum {
 	AHAlertViewDismissalStyleZoomOut,
 	AHAlertViewDismissalStyleFade,
 	AHAlertViewDismissalStyleTumble,
+	AHAlertViewDismissalStylePush,
 
 	AHAlertViewDismissalStyleDefault = AHAlertViewDismissalStyleFade
 } AHAlertViewDismissalStyle;
@@ -65,6 +81,12 @@ typedef void (^AHAlertViewButtonBlock)();
 @property(nonatomic, assign) AHAlertViewPresentationStyle presentationStyle;
 // This property determines the animation used when the alert is dismissed.
 @property(nonatomic, assign) AHAlertViewDismissalStyle dismissalStyle;
+// For presentation animations that have an origin other than the center of the screen (push),
+// this specifies the origination direction of the alert view.
+@property(nonatomic, assign) AHAlertViewEnterDirection enterDirection;
+// For dismissal animations that have an origin other than the center of the screen (push),
+// this specifies the destination direction of the alert view.
+@property(nonatomic, assign) AHAlertViewExitDirection exitDirection;
 
 // Resets all UIAppearance modifiers back to generic iOS alert styles
 + (void)applySystemAlertAppearance;
