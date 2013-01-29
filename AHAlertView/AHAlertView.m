@@ -26,7 +26,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
-// Key used to associated block objects with their respective buttons
+// Key used to associate block objects with their respective buttons
 static const char * const AHAlertViewButtonBlockKey = "AHAlertViewButtonBlock";
 
 static const NSInteger AHViewAutoresizingFlexibleSizeAndMargins =
