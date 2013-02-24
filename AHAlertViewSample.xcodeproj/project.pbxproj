@@ -7,13 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04B58B1416DA994A00070EE1 /* AHAlertView+CustomAppearance.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B58B1316DA994A00070EE1 /* AHAlertView+CustomAppearance.m */; };
+		04B58B1B16DA99CB00070EE1 /* custom-button-normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 04B58B1516DA99CB00070EE1 /* custom-button-normal.png */; };
+		04B58B1C16DA99CB00070EE1 /* custom-button-normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 04B58B1616DA99CB00070EE1 /* custom-button-normal@2x.png */; };
+		04B58B1D16DA99CB00070EE1 /* custom-cancel-normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 04B58B1716DA99CB00070EE1 /* custom-cancel-normal.png */; };
+		04B58B1E16DA99CB00070EE1 /* custom-cancel-normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 04B58B1816DA99CB00070EE1 /* custom-cancel-normal@2x.png */; };
+		04B58B1F16DA99CB00070EE1 /* custom-dialog-background.png in Resources */ = {isa = PBXBuildFile; fileRef = 04B58B1916DA99CB00070EE1 /* custom-dialog-background.png */; };
+		04B58B2016DA99CB00070EE1 /* custom-dialog-background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 04B58B1A16DA99CB00070EE1 /* custom-dialog-background@2x.png */; };
 		802BC624160CF38400C330C5 /* AHAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 802BC623160CF38400C330C5 /* AHAlertView.m */; };
-		802BC630160CF3B700C330C5 /* custom-button-normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 802BC626160CF3B700C330C5 /* custom-button-normal.png */; };
-		802BC631160CF3B700C330C5 /* custom-button-normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 802BC627160CF3B700C330C5 /* custom-button-normal@2x.png */; };
-		802BC632160CF3B700C330C5 /* custom-cancel-normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 802BC628160CF3B700C330C5 /* custom-cancel-normal.png */; };
-		802BC633160CF3B700C330C5 /* custom-cancel-normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 802BC629160CF3B700C330C5 /* custom-cancel-normal@2x.png */; };
-		802BC634160CF3B700C330C5 /* custom-dialog-background.png in Resources */ = {isa = PBXBuildFile; fileRef = 802BC62A160CF3B700C330C5 /* custom-dialog-background.png */; };
-		802BC635160CF3B700C330C5 /* custom-dialog-background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 802BC62B160CF3B700C330C5 /* custom-dialog-background@2x.png */; };
 		802BC636160CF3B700C330C5 /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 802BC62C160CF3B700C330C5 /* Icon-72.png */; };
 		802BC637160CF3B700C330C5 /* Icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = 802BC62D160CF3B700C330C5 /* Icon-144.png */; };
 		802BC638160CF3B700C330C5 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 802BC62E160CF3B700C330C5 /* Icon.png */; };
@@ -30,14 +31,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		04B58B1216DA994A00070EE1 /* AHAlertView+CustomAppearance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AHAlertView+CustomAppearance.h"; sourceTree = "<group>"; };
+		04B58B1316DA994A00070EE1 /* AHAlertView+CustomAppearance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AHAlertView+CustomAppearance.m"; sourceTree = "<group>"; };
+		04B58B1516DA99CB00070EE1 /* custom-button-normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "custom-button-normal.png"; sourceTree = "<group>"; };
+		04B58B1616DA99CB00070EE1 /* custom-button-normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "custom-button-normal@2x.png"; sourceTree = "<group>"; };
+		04B58B1716DA99CB00070EE1 /* custom-cancel-normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "custom-cancel-normal.png"; sourceTree = "<group>"; };
+		04B58B1816DA99CB00070EE1 /* custom-cancel-normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "custom-cancel-normal@2x.png"; sourceTree = "<group>"; };
+		04B58B1916DA99CB00070EE1 /* custom-dialog-background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "custom-dialog-background.png"; sourceTree = "<group>"; };
+		04B58B1A16DA99CB00070EE1 /* custom-dialog-background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "custom-dialog-background@2x.png"; sourceTree = "<group>"; };
 		802BC622160CF38400C330C5 /* AHAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AHAlertView.h; sourceTree = "<group>"; };
 		802BC623160CF38400C330C5 /* AHAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AHAlertView.m; sourceTree = "<group>"; };
-		802BC626160CF3B700C330C5 /* custom-button-normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-button-normal.png"; path = "Resources/custom-button-normal.png"; sourceTree = "<group>"; };
-		802BC627160CF3B700C330C5 /* custom-button-normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-button-normal@2x.png"; path = "Resources/custom-button-normal@2x.png"; sourceTree = "<group>"; };
-		802BC628160CF3B700C330C5 /* custom-cancel-normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-cancel-normal.png"; path = "Resources/custom-cancel-normal.png"; sourceTree = "<group>"; };
-		802BC629160CF3B700C330C5 /* custom-cancel-normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-cancel-normal@2x.png"; path = "Resources/custom-cancel-normal@2x.png"; sourceTree = "<group>"; };
-		802BC62A160CF3B700C330C5 /* custom-dialog-background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-dialog-background.png"; path = "Resources/custom-dialog-background.png"; sourceTree = "<group>"; };
-		802BC62B160CF3B700C330C5 /* custom-dialog-background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "custom-dialog-background@2x.png"; path = "Resources/custom-dialog-background@2x.png"; sourceTree = "<group>"; };
 		802BC62C160CF3B700C330C5 /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-72.png"; path = "Resources/Icon-72.png"; sourceTree = "<group>"; };
 		802BC62D160CF3B700C330C5 /* Icon-144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-144.png"; path = "Resources/Icon-144.png"; sourceTree = "<group>"; };
 		802BC62E160CF3B700C330C5 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = Resources/Icon.png; sourceTree = "<group>"; };
@@ -76,6 +79,14 @@
 		802BC621160CF38400C330C5 /* AHAlertView */ = {
 			isa = PBXGroup;
 			children = (
+				04B58B1516DA99CB00070EE1 /* custom-button-normal.png */,
+				04B58B1616DA99CB00070EE1 /* custom-button-normal@2x.png */,
+				04B58B1716DA99CB00070EE1 /* custom-cancel-normal.png */,
+				04B58B1816DA99CB00070EE1 /* custom-cancel-normal@2x.png */,
+				04B58B1916DA99CB00070EE1 /* custom-dialog-background.png */,
+				04B58B1A16DA99CB00070EE1 /* custom-dialog-background@2x.png */,
+				04B58B1216DA994A00070EE1 /* AHAlertView+CustomAppearance.h */,
+				04B58B1316DA994A00070EE1 /* AHAlertView+CustomAppearance.m */,
 				802BC622160CF38400C330C5 /* AHAlertView.h */,
 				802BC623160CF38400C330C5 /* AHAlertView.m */,
 			);
@@ -95,12 +106,6 @@
 		802BC63A160CF3C000C330C5 /* Custom Appearance */ = {
 			isa = PBXGroup;
 			children = (
-				802BC626160CF3B700C330C5 /* custom-button-normal.png */,
-				802BC627160CF3B700C330C5 /* custom-button-normal@2x.png */,
-				802BC628160CF3B700C330C5 /* custom-cancel-normal.png */,
-				802BC629160CF3B700C330C5 /* custom-cancel-normal@2x.png */,
-				802BC62A160CF3B700C330C5 /* custom-dialog-background.png */,
-				802BC62B160CF3B700C330C5 /* custom-dialog-background@2x.png */,
 			);
 			name = "Custom Appearance";
 			sourceTree = "<group>";
@@ -230,17 +235,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				80C6F10E15FE54A900ABF313 /* InfoPlist.strings in Resources */,
-				802BC630160CF3B700C330C5 /* custom-button-normal.png in Resources */,
-				802BC631160CF3B700C330C5 /* custom-button-normal@2x.png in Resources */,
-				802BC632160CF3B700C330C5 /* custom-cancel-normal.png in Resources */,
-				802BC633160CF3B700C330C5 /* custom-cancel-normal@2x.png in Resources */,
-				802BC634160CF3B700C330C5 /* custom-dialog-background.png in Resources */,
-				802BC635160CF3B700C330C5 /* custom-dialog-background@2x.png in Resources */,
 				802BC636160CF3B700C330C5 /* Icon-72.png in Resources */,
 				802BC637160CF3B700C330C5 /* Icon-144.png in Resources */,
 				802BC638160CF3B700C330C5 /* Icon.png in Resources */,
 				802BC639160CF3B700C330C5 /* Icon@2x.png in Resources */,
 				802BC63D160CF65800C330C5 /* Default-568h@2x.png in Resources */,
+				04B58B1B16DA99CB00070EE1 /* custom-button-normal.png in Resources */,
+				04B58B1C16DA99CB00070EE1 /* custom-button-normal@2x.png in Resources */,
+				04B58B1D16DA99CB00070EE1 /* custom-cancel-normal.png in Resources */,
+				04B58B1E16DA99CB00070EE1 /* custom-cancel-normal@2x.png in Resources */,
+				04B58B1F16DA99CB00070EE1 /* custom-dialog-background.png in Resources */,
+				04B58B2016DA99CB00070EE1 /* custom-dialog-background@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,6 +260,7 @@
 				80C6F11415FE54A900ABF313 /* AHAppDelegate.m in Sources */,
 				80C6F11C15FE54E900ABF313 /* AHAlertSampleViewController.m in Sources */,
 				802BC624160CF38400C330C5 /* AHAlertView.m in Sources */,
+				04B58B1416DA994A00070EE1 /* AHAlertView+CustomAppearance.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
